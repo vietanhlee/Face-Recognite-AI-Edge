@@ -34,7 +34,6 @@ class VectorBD:
     
     def search_emb(self, emb):
         dis, id = self.index.search(emb, 1)
-        print(id, self.index.ntotal)
         name = self.list_names[id]
         return dis, name
     

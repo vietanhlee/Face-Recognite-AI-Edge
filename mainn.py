@@ -3,10 +3,8 @@ import numpy as np
 
 from tensorflow.lite.python.interpreter import Interpreter
 
-
-
 # ===== Load model TFLite =====
-interpreter = Interpreter(model_path="facenet.tflite")
+interpreter = Interpreter(model_path="./models/model recognite/facenet_int_quantized.tflite")
 interpreter.allocate_tensors()
 
 input_details = interpreter.get_input_details()
@@ -31,7 +29,6 @@ def preprocess_face(img_path, target_size=(160,160)):
 # ===== Extract embedding =====
 def get_embedding(img_path):
     img = preprocess_face(img_path)
-    
     # đảm bảo dtype khớp với model
     if img.dtype != input_details[0]['dtype']:
         img = img.astype(input_details[0]['dtype'])
@@ -47,7 +44,7 @@ def get_embedding(img_path):
 
 # ===== Demo =====
 if __name__ == "__main__":
-    emb1 = get_embedding("make.png")
+    emb1 = get_embedding("./images/make.png")
     emb2 = get_embedding("./images/moc.png")
 
     # cosine similarity

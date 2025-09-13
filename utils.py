@@ -1,11 +1,11 @@
+from matplotlib.pyplot import box
 import numpy as np
 import cv2
-
 
 def normalize_input(img: np.ndarray) -> np.ndarray:
     # mean, std = img.mean(), img.std()
     # img = (img - mean) / std
-    img = (img.astype(np.float32) - 127.5) / 128.0
+    img = (img - 127.5) / 128.0
     return img
 
 def read_image(path: str) -> np.ndarray:
@@ -25,3 +25,10 @@ def verify_face(embed1: np.ndarray, embed2: np.ndarray, threshold: float = 0.7) 
         "similarity": sim,
         "verified": sim > threshold
     }
+
+def draw_box_text(img: np.ndarray, box: list, text: str) -> np.ndarray:
+    (x, y, w, h), text = (box, text)
+    cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
+    cv2.putText(img, text, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+    
+    return img

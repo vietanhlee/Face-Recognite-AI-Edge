@@ -1,8 +1,8 @@
 from FaceRecognite import Regconizer
 import cv2
 import datetime
-
-if '__main__' == __name__:
+import conf
+if __name__ == '__main__':
     # thêm fps
     rcg = Regconizer()
     cam = cv2.VideoCapture(0)
@@ -13,15 +13,20 @@ if '__main__' == __name__:
             break
         frame = cv2.flip(frame, 1)  # Đảo ảnh
         res = rcg.regcognize_face(frame)
-        frame = rcg.detector_face.img_with_bbs
+        frame = rcg.img_with_bbs
         # Chỉ log nếu có khuôn mặt và distance >= 0.7
-        if len(res['Names']) > 0 and len(res['Distances']) > 0 and res['Distances'][0][0] >= 0.7:
-            print(res['Names'], res['Distances'])
+        # if len(res['Names']) > 0 and len(res['Distances']) > 0 and res['Distances'][0][0] >= 0.7:
+        #     for name, dist in zip(res['Names'], res['Distances']):
+        #         if dist[0] > conf.threshold_distance:
+        #             print(name[0], dist[0])
         time_pre = datetime.datetime.now()
         fps = 1 / (time_pre - timenow).total_seconds()
         timenow = time_pre
-        cv2.putText(frame, f"FPS: {fps:.2f}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-        cv2.imshow("Frame", frame)
+        
+        if frame is not None and hasattr(frame, 'shape') and frame.shape[0] > 0 and frame.shape[1] > 0:
+            cv2.putText(frame, f"FPS: {fps:.2f}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+            cv2.imshow("Frame", frame)
+            
         key = cv2.waitKey(1)
         if key == 27 or key == ord('q'):
             break

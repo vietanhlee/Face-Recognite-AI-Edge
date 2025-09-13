@@ -18,6 +18,9 @@ def save_all_emb_in_folder(folder: str):
             try:
                 img = read_image(path)
                 embed = reg.get_face_embedding(img)
+                if len(embed) > 1:
+                    print(f"Cảnh báo: Ảnh {file} có nhiều hơn 1 khuôn mặt, bỏ qua ảnh này.")
+                    continue
                 vt.add_emb(embed, name)
             except Exception as e:
                 print(f"Lỗi với ảnh {file}: {e}")
