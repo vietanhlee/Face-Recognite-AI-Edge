@@ -3,3 +3,9 @@ uvicorn[standard]
 faiss-cpu
 tensorflow
 keras
+onnxruntime
+openvino
+opencv-python
+mtcnn
+ultralytics
+numpy
