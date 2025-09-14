@@ -55,7 +55,7 @@ class VectorBD:
         faiss.write_index(self.index, self.path_db)
     
     def add_emb(self, embeddings: np.ndarray, name: str, id: int):
-        """ Hàm thêm embedding vào database 
+        """ Hàm thêm embedding vào database và cả thêm vào map id --> name
 
         Args:
             embeddings (np.ndarray): các embedding (định dạng batch)
@@ -68,7 +68,7 @@ class VectorBD:
             self.index.add_with_ids(embeddings, np.array([id] * len(embeddings)))
             add_id_name(id, name) # Thêm vào map id -> name
             self.save_local() # Lưu lại database
-            print(f"Đã thêm thành công {name} vào database với {len(embeddings)} ảnh")
+            print(f"Đã thêm thành công {name.split('_')[0]} với ID: {id} vào database với {len(embeddings)} ảnh")
         else:
             print(f"{id} đã tồn tại trong db, vui lòng sử dụng hàm cập nhật")
 

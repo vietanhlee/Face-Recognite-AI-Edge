@@ -32,7 +32,7 @@ class Regconizer():
         
         # Lấy faces ảnh khuôn mặt (N, H, W, C)
         faces = self.detector_face.cropped_faces
-        self.bbs = self.detector_face.bbs  # Lưu bounding box
+        self.bbs = self.detector_face.bbs_face # Lưu bounding box
         
         if faces is None or len(faces) == 0:
             return np.array([])
@@ -59,34 +59,31 @@ class Regconizer():
         return embeds  
 
     def regcognize_face(self, img: np.ndarray) -> dict:
-        embed = self.get_face_embedding(img)
-
-        if embed is None or len(embed) == 0:
+        embeddings = self.get_face_embedding(img)
+        self.img_with_bbs = img
+        
+        if embeddings is None or len(embeddings) == 0:
             return {
                 "Distances": [],
-                "Names": []
+                "Names": [],
+                "id": None
             }
-
-        distances, names = self.vt_db.search_emb(embed)
-
-        for dist, name, bb in zip(distances, names, self.bbs):
+        
+        # Tìm kiếm cho embeddings
+        distances, names, ids = self.vt_db.search_emb(embeddings)
+        
+        for dist, name, bb, id in zip(distances, names, self.bbs, ids):
+            # Chọn nhãn cho bbs
             if dist[0] > conf.threshold_distance:
-                text = f"{name[0]} ({dist[0]:.2f})"
+                text = f"{id[0]} - {name[0]} ({dist[0]:.2f})"
             else:
                 text = "Unknown"
+            
+            # Vẽ bbs và nhãn lên màn
             self.img_with_bbs = draw_box_text(img, bb, text)
-        
         
         return {
             "Distances": distances,
-            "Names": names
+            "Names": names, 
+            "ID": id
         }
-        
-    def register_face(self, img: np.ndarray, name: str):
-        embed = self.get_face_embedding(img)
-        if len(embed) > 1:
-            print("Có nhiều hơn 1 khuôn mặt trong ảnh. Vui lòng sử dụng ảnh chỉ có 1 khuôn mặt.")
-            return
-        self.vt_db.update_emb(embed, name)
-        print(f"Đã đăng ký gương mặt với tên: {name}")
-    

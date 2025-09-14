@@ -2,3 +2,5 @@ tempCodeRunnerFile.py
 images
 main.ipynb
 test.py
+__pycache__
+FaceDetect
