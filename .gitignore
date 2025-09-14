@@ -3,4 +3,5 @@ images
 main.ipynb
 test.py
 __pycache__
+.idea
 FaceDetect
