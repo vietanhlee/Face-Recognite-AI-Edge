@@ -1,5 +1,3 @@
-fastapi
-uvicorn[standard]
 faiss-cpu
 tensorflow
 keras

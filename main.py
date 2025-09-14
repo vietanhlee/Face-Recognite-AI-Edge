@@ -1,7 +1,6 @@
 from FaceRecognite import Regconizer
 import cv2
 import datetime
-import conf
 
 if __name__ == '__main__':
     # thêm fps
