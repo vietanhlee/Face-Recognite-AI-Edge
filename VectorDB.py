@@ -29,7 +29,7 @@ class VectorBD:
         return dis, names, ids
     
     def remove_emb(self, id: int):
-        """ Xoá tất cả các embedding có id tương ứng là id
+        """ Xoá tất cả các embedding có id tương ứng là id lẫn xoá luôn trong map id --> name
 
         Args:
             id (int): id của embedding cần xoá

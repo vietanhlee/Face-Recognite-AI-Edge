@@ -1,6 +1,6 @@
 import os
 import numpy as np
-from vector_db import VectorBD
+from VectorDB import VectorBD
 from FaceRecognite import Regconizer
 from utils import read_image, check_is_id_exist
 

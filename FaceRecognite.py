@@ -2,7 +2,7 @@
 import numpy as np
 from FaceDetectYolo import FaceDetectYolo
 from utils import *
-from vector_db import VectorBD
+from VectorDB import VectorBD
 import conf
 from tensorflow.lite.python.interpreter import Interpreter
 
@@ -15,7 +15,7 @@ class Regconizer():
         self.detector_face = FaceDetectYolo()
         # self.detector_face = FaceDetect()
         self.bbs = []
-        # ===== Load model TFLite =====
+        
         self.interpreter = Interpreter(model_path= model_path)
         self.interpreter.allocate_tensors()
 
@@ -23,11 +23,15 @@ class Regconizer():
         self.output_details = self.interpreter.get_output_details()
 
     def get_face_embedding(self, img: np.ndarray) -> np.ndarray:
+        """ Hàm trả về embeddings của faces
+
+        Args:
+            img (np.ndarray): Ảnh đầu vào
+
+        Returns:
+            np.ndarray: Trả về embedding cảu faces (dạng batch)
         """
-        Trả về embedding đã chuẩn hóa L2, luôn có shape (N, D).
-        - N = số mặt detect được (>=1)
-        - D = chiều embedding
-        """
+        # Set ảnh đầu vào 
         self.detector_face.set_img_input(img)
         
         # Lấy faces ảnh khuôn mặt (N, H, W, C)
@@ -49,7 +53,7 @@ class Regconizer():
         self.interpreter.set_tensor(self.input_details[0]['index'], faces)
         self.interpreter.invoke()
 
-        # Lấy output
+        # Lấy output (đầu vào dạng batch)
         embeds = self.interpreter.get_tensor(self.output_details[0]['index'])  # (faces_size, 128)
 
         # Chuẩn hóa L2 theo từng vector
@@ -59,6 +63,14 @@ class Regconizer():
         return embeds  
 
     def regcognize_face(self, img: np.ndarray) -> dict:
+        """ Nhận diện các gương mặt trong ảnh
+
+        Args:
+            img (np.ndarray): Ảnh đầu vào
+
+        Returns:
+            dict: Gồm khoảng cách, tên và id
+        """
         embeddings = self.get_face_embedding(img)
         self.img_with_bbs = img
         

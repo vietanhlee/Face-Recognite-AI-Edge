@@ -3,7 +3,7 @@ import os
 import numpy as np
 import shutil
 from FaceRecognite import Regconizer
-from vector_db import VectorBD
+from VectorDB import VectorBD
 from utils import check_is_id_exist
 
 id = ''

@@ -35,14 +35,14 @@ def draw_box_text(img: np.ndarray, box: list, text: str, font_path="arial.ttf") 
     x1, y1, x2, y2 = box
 
     # Vẽ bounding box bằng OpenCV
-    cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 2)
+    cv2.rectangle(img, (x1, y1), (x2, y2), (255, 255, 0), 2)
 
     # Chuyển sang PIL để vẽ text Unicode
     img_pil = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
     draw = ImageDraw.Draw(img_pil)
 
     # Load font hỗ trợ Unicode
-    font = ImageFont.truetype(font_path, 20)
+    font = ImageFont.truetype(font_path, 18)
 
     # Vẽ text
     draw.text((x1, y1 - 25), text, font=font, fill=(0, 255, 0))
@@ -60,6 +60,7 @@ def add_id_name(id: int, name: str):
     json.dump(data, open(path, 'w', encoding='utf-8'), ensure_ascii= False, indent=4)
 
 def delete_id_name(id: int, path: str = conf.path_json_id_name):
+    id = str(id)
     data = json.load(open(path, 'r', encoding='utf-8'))
     if id in data.keys():
         del data[id]
