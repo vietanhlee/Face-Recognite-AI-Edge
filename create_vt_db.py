@@ -25,7 +25,7 @@ def add_emb_in_folder(root_folder: str, is_reinit: bool = True) -> None:
         # Nếu không reinit thì id là phần đằng trước của tên folder (folder = id_name)
         if is_reinit == False:
             person_id = int(person_name.split('_')[0])
-        
+        person_name = person_name.split('_')[-1]
         # Kiểm tra id đã tồn tại hay chưa, tồn tại thì tiếp đến cái khác
         if check_is_id_exist(person_id) == True:
             print(f"{person_id} của {person_name} này đã tồn tại, bỏ qua.")
