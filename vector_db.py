@@ -2,15 +2,15 @@ import numpy as np
 import faiss
 import os
 import conf
-from utils import load_id_name, load_vt_db, delete_id_name, check_is_id_exist, add_id_name
+from utils import init_id_name, init_vt_db, delete_id_name, check_is_id_exist, add_id_name
 
 class VectorBD:
     def __init__(self, path_db : str = conf.path_vector_db, path_json_id_name: str = conf.path_json_id_name):
         self.dim = conf.dim
         self.path_db = path_db
         self.path_json_id_name = path_json_id_name
-        self.index = load_vt_db(self.path_db)
-        self.map_id_name = load_id_name(self.path_json_id_name)
+        self.index = init_vt_db(self.path_db)
+        self.map_id_name = init_id_name(self.path_json_id_name)
 
     def search_emb(self, embeddings: np.ndarray):
         """ Tìm ra vector có độ tương đồng cosin gần nhất với vector đưa vào
@@ -82,8 +82,8 @@ class VectorBD:
             os.remove(self.path_json_id_name)
             
         # Load lại database với dữ liệu đã được lưu từ trước
-        self.index = load_vt_db(self.path_db)
-        self.map_id_name = load_id_name(self.path_json_id_name)
+        self.index = init_vt_db(self.path_db)
+        self.map_id_name = init_id_name(self.path_json_id_name)
         print("Đã tạo lại db mới")
         
     
