@@ -6,6 +6,7 @@ from FaceRecognite import Regconizer
 from VectorDB import VectorBD
 from utils import check_is_id_exist
 
+os.makedirs('images', exist_ok= True)
 id = ''
 # Nhập thông tin
 while True:
