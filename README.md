@@ -64,13 +64,13 @@ All functionalities are available via **command line (CMD)**:
 1. Register a new face:
 
    ```bash
-   python register_face.py --name "Alice" --id 1
+   python register_face.py --name "Alice" --id 11
    ```
 
 2. Update the vector database:
 
    ```bash
-   python create_vt_database.py --reinit 0
+   python create_vt_database.py --reinit 1
    ```
 
 3. Run the recognition system:
