@@ -7,6 +7,11 @@ import conf
 from tensorflow.lite.python.interpreter import Interpreter
 
 class Regconizer():
+    """Bao bọc pipeline nhận diện: detect → embed → search.
+
+    Args:
+        model_path: Đường dẫn mô hình TFLite nhận diện khuôn mặt.
+    """
     def __init__(self, model_path: str = conf.path_model_face_recognition):
         # self.model = load_model(model_path, compile=False, safe_mode=False)
         self.img_face = None
@@ -23,13 +28,13 @@ class Regconizer():
         self.output_details = self.interpreter.get_output_details()
 
     def get_face_embedding(self, img: np.ndarray) -> np.ndarray:
-        """ Hàm trả về embeddings của faces
+        """Suy luận embedding cho các khuôn mặt trong ảnh.
 
         Args:
-            img (np.ndarray): Ảnh đầu vào
+            img (np.ndarray): Ảnh đầu vào (BGR - OpenCV).
 
         Returns:
-            np.ndarray: Trả về embedding cảu faces (dạng batch)
+            np.ndarray: Batch embedding có shape (N, D). Nếu không có mặt, trả về mảng rỗng.
         """
         # Set ảnh đầu vào 
         self.detector_face.set_img_input(img)
@@ -63,13 +68,13 @@ class Regconizer():
         return embeds  
 
     def regcognize_face(self, img: np.ndarray) -> dict:
-        """ Nhận diện các gương mặt trong ảnh
+        """Nhận diện các khuôn mặt, trả về kết quả tìm kiếm và ảnh có vẽ nhãn.
 
         Args:
-            img (np.ndarray): Ảnh đầu vào
+            img (np.ndarray): Ảnh đầu vào (BGR - OpenCV).
 
         Returns:
-            dict: Gồm khoảng cách, tên và id
+            dict: Bao gồm khoảng cách, tên, ids 
         """
         embeddings = self.get_face_embedding(img)
         self.img_with_bbs = img
@@ -78,7 +83,7 @@ class Regconizer():
             return {
                 "Distances": [],
                 "Names": [],
-                "id": None
+                "IDs": [],
             }
         
         # Tìm kiếm cho embeddings
@@ -97,5 +102,5 @@ class Regconizer():
         return {
             "Distances": distances,
             "Names": names, 
-            "ID": id
+            "IDs": ids
         }

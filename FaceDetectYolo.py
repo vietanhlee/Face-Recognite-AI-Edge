@@ -6,11 +6,18 @@ import conf
 
 class FaceDetectYolo():
     def __init__(self, model_path: str = conf.path_model_face_detection):
-        self.detector = YOLO(model_path)
-        self.img_with_bbs = None
-        self.cropped_faces = np.array([])
-        self.bbs_face = []
+        """Khởi tạo detector YOLO và các trường kết quả."""
+        self.detector = YOLO(model_path)  # Mô hình YOLO để phát hiện khuôn mặt
+        self.img_with_bbs = None          # Ảnh đầu vào kèm bounding boxes để hiển thị
+        self.cropped_faces = np.array([]) # Batch ảnh khuôn mặt đã resize + normalize cho mô hình nhận diện
+        self.bbs_face = []                # Danh sách bbox khuôn mặt theo định dạng [x1, y1, x2, y2]
     def set_img_input(self, img: np.ndarray, target_size=(160, 160)) -> None:
+        """Chạy phát hiện khuôn mặt trên ảnh và chuẩn bị batch đầu vào.
+
+        Args:
+            img (np.ndarray): Ảnh đầu vào (BGR - OpenCV).
+            target_size (tuple): Kích thước HxW cho ảnh khuôn mặt đầu vào model nhận diện.
+        """
         self.img_with_bbs = img.copy()
         results = self.detector.predict(img, verbose=False)
     
@@ -38,7 +45,7 @@ class FaceDetectYolo():
                 self.cropped_faces = np.append(self.cropped_faces, [cropped_resized], axis=0)
 
 
-#**************************** Code test **********************
+#******************************************** Code test **********************************************
 if __name__ == '__main__':
     import datetime
     timenow = datetime.datetime.now()

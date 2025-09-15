@@ -5,6 +5,11 @@ import os
 import argparse
 
 def delete_folder_id(id: int):
+    """Xoá thư mục ảnh tương ứng với ID trong thư mục ``./images``.
+
+    Args:
+        id (int): Định danh cần xoá ảnh.
+    """
     id = str(id)
     folder = './images'
     for name in os.listdir(folder):
@@ -12,6 +17,11 @@ def delete_folder_id(id: int):
             shutil.rmtree(os.path.join(folder, name))
 
 def main(id: int):
+    """Xoá embeddings và ảnh theo ID nếu tồn tại.
+
+    Args:
+        id (int): Định danh cần xoá.
+    """
     vt_db = VectorBD()
     if not check_is_id_exist(id):
         print(f"❌ ID {id} không tồn tại trong database.")

@@ -5,6 +5,12 @@ import conf
 from utils import init_id_name, init_vt_db, delete_id_name, check_is_id_exist, add_id_name
 
 class VectorBD:
+    """Bao bọc thao tác với FAISS index và map id ↔ tên.
+
+    Args:
+        path_db: Đường dẫn tệp FAISS index.
+        path_json_id_name: Đường dẫn tệp JSON lưu ánh xạ id ↔ tên.
+    """
     def __init__(self, path_db : str = conf.path_vector_db, path_json_id_name: str = conf.path_json_id_name):
         self.dim = conf.dim
         self.path_db = path_db
@@ -13,7 +19,7 @@ class VectorBD:
         self.map_id_name = init_id_name(self.path_json_id_name)
 
     def search_emb(self, embeddings: np.ndarray):
-        """ Tìm ra vector có độ tương đồng cosin gần nhất với vector đưa vào
+        """Tìm lân cận gần nhất cho mỗi embedding trong batch.
 
         Args:
             embeddings (np.ndarray): vector embedding đưa vào (định dạng batch). Ví dụ: [embed1, embed2]
@@ -34,12 +40,15 @@ class VectorBD:
         Args:
             id (int): id của embedding cần xoá
         """
-        self.index.remove_ids(np.array([id])) # Yêu cầu đầu vào là array
-        self.save_local() # Xoá xong phải lưu lại database
-        delete_id_name(id, self.path_json_id_name) # Xoá luôn ở file json map id --> name
+        # FAISS yêu cầu danh sách id dạng mảng
+        self.index.remove_ids(np.array([id]))
+        # Lưu index sau khi xoá để đảm bảo dữ liệu nhất quán
+        self.save_local()
+        # Xoá luôn trong ánh xạ id ↔ tên
+        delete_id_name(id, self.path_json_id_name)
 
     def update_emb(self, embeddings: np.ndarray, id: int):
-        """ Cập nhật embedding theo id 
+        """Cập nhật embedding theo id.
 
         Args:
             embeddings (np.ndarray): Các vector embedding (đingj dạng batch)
@@ -50,17 +59,16 @@ class VectorBD:
         print("Đã cập nhật thành công")
         
     def save_local(self):
-        """ Lưu lại database
-        """
+        """Lưu FAISS index xuống tệp ``self.path_db``."""
         faiss.write_index(self.index, self.path_db)
     
     def add_emb(self, embeddings: np.ndarray, name: str, id: int):
-        """ Hàm thêm embedding vào database và cả thêm vào map id --> name
+        """Thêm embedding (dạng batch) vào index và cập nhật map id ↔ tên.
 
         Args:
-            embeddings (np.ndarray): các embedding (định dạng batch)
-            name (str): tên của người đó
-            id (int): id tương ứng 
+            embeddings (np.ndarray): Batch embedding (shape (N, dim)).
+            name (str): Tên hiển thị của đối tượng.
+            id (int): Định danh tương ứng.
         """
         # Kiểm tra id đã tồn tại hay chưa
         if not check_is_id_exist(id, self.path_json_id_name):
@@ -73,7 +81,9 @@ class VectorBD:
             print(f"{id} đã tồn tại trong db, vui lòng sử dụng hàm cập nhật")
 
     def re_init(self):
-        """ Tái tạo lại database từ dữ liệu đã lưu, sử dụng trong trường hợp database lỗi hoặc tạo lại database
+        """Tạo mới hoàn toàn index và map id ↔ tên trên đĩa.
+
+        Dùng khi cần làm sạch/cài đặt lại cơ sở dữ liệu cục bộ.
         """
         # Kiểm tra database tồn tại không, nếu có thì xoá
         if os.path.exists(self.path_db):

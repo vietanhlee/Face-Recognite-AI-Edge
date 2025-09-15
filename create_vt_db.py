@@ -1,3 +1,7 @@
+"""
+Thêm mới/tạo lại cơ sở dữ liệu vector từ thư mục ảnh đã gán nhãn theo cấu trúc ``images/{id}_{name}/...``.
+"""
+
 import os
 import numpy as np
 import argparse
@@ -6,6 +10,12 @@ from FaceRecognite import Regconizer
 from utils import read_image, check_is_id_exist
 
 def add_emb_in_folder(root_folder: str, is_reinit: bool = True) -> None:
+    """Duyệt thư mục ảnh và thêm embedding vào FAISS DB cũng như map id ↔ tên.
+
+    Args:
+        root_folder (str): Thư mục gốc chứa các thư mục con theo định dạng ``{id}_{name}``.
+        is_reinit (bool): True để xoá và khởi tạo DB mới trước khi thêm.
+    """
     vt = VectorBD()
     if is_reinit:
         # Khởi tạo database

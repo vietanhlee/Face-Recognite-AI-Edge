@@ -1,95 +1,94 @@
-# Face Recognition System
+## Hệ thống nhận diện khuôn mặt
 
-## Introduction
+### Giới thiệu
+Hệ thống nhận diện khuôn mặt thời gian thực sử dụng:
+- **YOLO (OpenVINO INT8)** để phát hiện khuôn mặt nhanh và chính xác.
+- **Facenet (TFLite INT8)** để trích xuất embedding (128D) và tìm kiếm trong FAISS.
 
-This project provides a robust and efficient face recognition system designed for real-time applications.  
-It leverages a **quantized YOLO model (OpenVINO INT8)** for fast and accurate face detection, and a **quantized Facenet model (TFLite INT8)** to extract high-quality face embeddings for recognition.  
-The system is optimized for both speed and accuracy, making it suitable for deployment on edge devices and in resource-constrained environments.
+Phù hợp demo, điểm danh, kiểm soát ra vào, có thể chạy trên máy cấu hình vừa phải.
 
-### Main Features
-- **Real-time Face Detection and Recognition:** Instantly detect and identify faces from webcam or video streams using YOLO and Facenet.  
-- **Face Registration:** Add new faces to the recognition database with a unique name or label.  
-- **Update and Edit:** Modify or update the information and embeddings of registered faces.  
-- **Delete Faces:** Remove faces from the recognition database as needed.  
-- **Database Management:** Efficiently manage, search, and update the face embeddings for scalable recognition.  
-
-The solution is modular, easy to extend, and can be integrated into larger security, attendance, or access control systems.
+### Chức năng chính
+- **Nhận diện realtime** từ webcam (Streamlit Web + streamlit-webrtc).
+- **Đăng ký** gương mặt mới (chụp nhiều hướng, lưu embedding).
+- **Cập nhật** (xoá embeddings cũ của ID và đăng ký lại).
+- **Xoá** theo ID khỏi DB và thư mục ảnh.
+- **Khởi tạo/Thêm DB** từ thư mục `images/{id}_{name}/...`.
 
 ---
 
-## Installation
+## Cài đặt
 
-### Requirements
+### Yêu cầu
 - Python >= 3.10
 
-Install all required dependencies:
+### Cài phụ thuộc
 ```bash
 pip install -r requirements.txt
-````
+```
+
+Lưu ý: Trên Windows, nếu gặp lỗi camera với trình duyệt, dùng Chrome mới nhất và cho phép quyền camera.
 
 ---
 
-## Usage
+## Chạy demo web (Streamlit)
 
-All functionalities are available via **command line (CMD)**:
+```bash
+streamlit run app.py
+```
 
-* **Run the main face recognition system**
-
-  ```bash
-  python main.py
-  ```
-
-* **Register a new face**
-
-  ```bash
-  python register_face.py --name "Person_Name" --id "ID"
-  ```
-
-* **Delete a registered face**
-
-  ```bash
-  python delete_face.py --id "ID"
-  ```
-
-* **Create or update the vector database**
-
-  ```bash
-  python create_vt_db.py --reinit "0 or 1"
-  ```
+- Tab "Nhận diện": cấp quyền camera, đưa mặt vào khung để xem kết quả.
+- Tab "Đăng ký": nhập Tên và ID, quá trình sẽ mở vòng lặp chụp như CLI (nhấn P để chụp theo hướng, Q để thoát). Ảnh và embeddings sẽ được lưu.
+- Tab "Xoá": nhập ID để xoá.
+- Tab "Cập nhật": nhập ID và Tên mới, hệ thống sẽ xoá embeddings cũ và đăng ký lại.
+- Tab "Khởi tạo DB": chọn thư mục ảnh gốc (mặc định `./images`), chọn "Khởi tạo lại" nếu muốn xoá DB cũ rồi xây lại.
 
 ---
 
-## Example 
+## Dùng qua dòng lệnh (CLI)
 
-1. Register a new face:
+- Nhận diện realtime (OpenCV):
+```bash
+python main.py
+```
 
-   ```bash
-   python register_face.py --name "Alice" --id 11
-   ```
+- Đăng ký gương mặt:
+```bash
+python register_face.py --name "Alice" --id 11
+```
 
-2. Update the vector database:
+- Xoá theo ID:
+```bash
+python delete_face.py --id 11
+```
 
-   ```bash
-   python create_vt_db.py --reinit 1
-   ```
-
-3. Run the recognition system:
-
-   ```bash
-   python main.py
-   ```
-
-4. Delete a face if needed:
-
-   ```bash
-   python delete_face.py --id 1
-   ```
+- Tạo/Thêm DB từ thư mục ảnh (`--reinit 1` để xoá DB cũ và tạo mới; `0` để thêm):
+```bash
+python create_vt_db.py --reinit 1
+```
 
 ---
 
-## References
+## Cấu trúc thư mục ảnh
 
-* [YOLO](https://github.com/ultralytics/ultralytics)
-* [Facenet](https://github.com/davidsandberg/facenet)
-* [OpenVINO](https://docs.openvino.ai/)
-* [Tensorflow Lite (TFLite)](https://www.tensorflow.org/lite)
+```
+images/
+  11_Alice/
+    mid.jpg
+    left.jpg
+    right.jpg
+    up.jpg
+    down.jpg
+    up_left.jpg
+    up_right.jpg
+    down_left.jpg
+    down_right.jpg
+```
+
+---
+
+## Tài liệu tham khảo
+
+- [YOLO](https://github.com/ultralytics/ultralytics)
+- [FaceNet](https://github.com/davidsandberg/facenet)
+- [OpenVINO](https://docs.openvino.ai/)
+- [TensorFlow Lite](https://www.tensorflow.org/lite)

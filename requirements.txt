@@ -7,3 +7,6 @@ opencv-python
 mtcnn
 ultralytics
 numpy
+streamlit
+streamlit-webrtc
+Pillow

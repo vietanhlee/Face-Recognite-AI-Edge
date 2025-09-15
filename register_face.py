@@ -1,3 +1,7 @@
+"""
+Đăng ký khuôn mặt bằng cách chụp 9 hướng cố định và lưu embedding.
+"""
+
 import cv2
 import os
 import numpy as np
@@ -18,9 +22,12 @@ def main(name: str, id: int):
     dir_path = f'./images/{id}_{name}'
     os.makedirs(dir_path, exist_ok=True)
 
-    # Các hướng cần chụp
-    directions = ['mid', 'left', 'right', 'up', 'down']
-    direction_iter = iter(directions)
+    # Thứ tự chụp các hướng (bao gồm chéo)
+    directions = [
+        'mid', 'left', 'right', 'up', 'down',
+        'up_left', 'up_right', 'down_left', 'down_right'
+    ]
+    current_idx = 0
 
     # Khởi tạo nhận diện và DB
     rec = Regconizer()
@@ -29,7 +36,7 @@ def main(name: str, id: int):
     # Mở camera
     cam = cv2.VideoCapture(0)
 
-    def exit_program(remove_folder=False):
+    def cleanup_and_exit(remove_folder=False):
         cam.release()
         cv2.destroyAllWindows()
         if remove_folder and os.path.exists(dir_path):
@@ -38,45 +45,61 @@ def main(name: str, id: int):
         print("Thoát chương trình")
         exit(0)
 
-    print("👉 Hãy lần lượt nhìn: mid → left → right → up → down. Nhấn 'p' để chụp, 'q' để thoát.")
+    print("👉 Nhìn theo thứ tự: mid → left → right → up → down | Nhấn: [P] chụp, [Q] thoát")
 
-    embeds = []  # list chứa embedding các hướng
+    embeddings_buffer = []
 
     while True:
         ret, frame = cam.read()
+        if not ret:
+            print("Không đọc được khung hình từ camera")
+            cleanup_and_exit(remove_folder=False)
         frame = cv2.flip(frame, 1)
 
-        # Lấy embedding từ frame
+        # Tính embedding và cập nhật ảnh có bbox để hiển thị
         embed = rec.get_face_embedding(frame)
+        display_img = rec.detector_face.img_with_bbs if hasattr(rec, 'detector_face') else frame
 
-        # Bấm 'p' để chụp ảnh
-        if cv2.waitKey(1) & 0xFF == ord('p'):
+        # Overlay UI: hướng hiện tại, tiến độ, hướng dẫn phím
+        h, w = display_img.shape[:2]
+        bar_w = int((current_idx / len(directions)) * w)
+        cv2.rectangle(display_img, (0, h-10), (bar_w, h), (0, 255, 0), -1)
+        cur_dir = directions[current_idx]
+        cv2.putText(display_img, f"Direction: {cur_dir}  ({current_idx+1}/{len(directions)})",
+                    (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0,255,0), 2, cv2.LINE_AA)
+        cv2.putText(display_img, "[P] capture  [Q] quit",
+                    (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255,255,255), 2, cv2.LINE_AA)
+
+        # Hiển thị khung hình
+        cv2.imshow("Camera", display_img)
+
+        # Đọc phím một lần mỗi vòng
+        key = cv2.waitKey(1) & 0xFF
+        if key == ord('q'):
+            cleanup_and_exit(remove_folder=False)
+        if key == ord('p'):
             if len(embed) == 1:
-                try:
-                    dir_name = next(direction_iter)
-                    img_path = f"{dir_path}/{dir_name}.jpg"
-                    cv2.imwrite(img_path, frame)
+                # Lưu ảnh theo hướng hiện tại
+                dir_name = cur_dir
+                img_path = f"{dir_path}/{dir_name}.jpg"
+                cv2.imwrite(img_path, frame)
 
-                    embeds.append(embed[0])  # embed là list, lấy phần tử [0]
-                    print(f"Đã lưu ảnh {dir_name} ({img_path}) và embedding tạm thời")
+                # Lưu embedding
+                embeddings_buffer.append(embed[0])
+                print(f"Đã lưu {dir_name} → {img_path}")
 
-                except StopIteration:
-                    # Sau khi chụp đủ 5 hướng → convert sang numpy và lưu vào DB
-                    embeds = np.array(embeds)
+                # Tiến hướng kế tiếp
+                current_idx += 1
+                if current_idx >= len(directions):
+                    # Đủ 9 hướng → lưu DB
+                    embeds = np.array(embeddings_buffer)
                     vt_db.add_emb(embeds, name, id)
-                    print("✅ Đã đủ ảnh, hoàn tất đăng ký khuôn mặt và lưu embeddings vào DB.")
-                    exit_program()
+                    print("✅ Hoàn tất đăng ký và lưu embeddings vào DB.")
+                    cleanup_and_exit(remove_folder=False)
             elif len(embed) == 0:
-                print("⚠️ Không phát hiện gương mặt nào")
+                print("⚠️ Không phát hiện gương mặt nào. Hãy đưa mặt vào khung.")
             else:
-                print("⚠️ Tồn tại nhiều hơn 1 gương mặt")
-
-        # Hiển thị khung hình với bounding box
-        cv2.imshow("Camera", rec.detector_face.img_with_bbs)
-
-        # Bấm 'q' để thoát
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            exit_program()
+                print("⚠️ Tồn tại nhiều hơn 1 gương mặt. Hãy đảm bảo chỉ có 1 người trong khung.")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
