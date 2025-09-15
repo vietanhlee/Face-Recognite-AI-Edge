@@ -54,7 +54,7 @@ All functionalities are available via **command line (CMD)**:
 * **Create or update the vector database**
 
   ```bash
-  python create_vt_database.py --reinit "0 or 1"
+  python create_vt_db.py --reinit "0 or 1"
   ```
 
 ---
@@ -70,7 +70,7 @@ All functionalities are available via **command line (CMD)**:
 2. Update the vector database:
 
    ```bash
-   python create_vt_database.py --reinit 1
+   python create_vt_db.py --reinit 1
    ```
 
 3. Run the recognition system:
