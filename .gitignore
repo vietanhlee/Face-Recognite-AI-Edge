@@ -4,5 +4,5 @@ main.ipynb
 test.py
 __pycache__
 .idea
-FaceDetect
+FaceDetect.py
 .venv/
