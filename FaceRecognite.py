@@ -97,7 +97,7 @@ class Regconizer():
                 text = "Unknown"
             
             # Vẽ bbs và nhãn lên màn
-            self.img_with_bbs = draw_box_text(img, bb, text)
+            self.img_with_bbs = draw_box_text(self.img_with_bbs, bb, text)
         
         return {
             "Distances": distances,
