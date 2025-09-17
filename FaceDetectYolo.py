@@ -7,7 +7,7 @@ import conf
 class FaceDetectYolo():
     def __init__(self, model_path: str = conf.path_model_face_detection):
         """Khởi tạo detector YOLO và các trường kết quả."""
-        self.detector = YOLO(model_path)  # Mô hình YOLO để phát hiện khuôn mặt
+        self.detector = YOLO(model_path, task="detect")  # Mô hình YOLO để phát hiện khuôn mặt
         self.img_with_bbs = None          # Ảnh đầu vào kèm bounding boxes để hiển thị
         self.cropped_faces = np.array([]) # Batch ảnh khuôn mặt đã resize + normalize cho mô hình nhận diện
         self.bbs_face = []                # Danh sách bbox khuôn mặt theo định dạng [x1, y1, x2, y2]
